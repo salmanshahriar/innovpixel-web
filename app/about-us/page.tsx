@@ -148,7 +148,7 @@ export default function ScrollRevealExample() {
       </h2>
 
       <ScrollReveal
-        baseOpacity={5}
+        baseOpacity={0}
         enableBlur={true}
         baseRotation={0}
         blurStrength={25}
