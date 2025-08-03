@@ -1,0 +1,239 @@
+/* =============================================================================
+   GLOBAL STYLES - INNOVPIXEL
+   ============================================================================= */
+
+/* -----------------------------------------------------------------------------
+   TAILWIND CSS DIRECTIVES
+   ----------------------------------------------------------------------------- */
+   @tailwind base;
+   @tailwind components;
+   @tailwind utilities;
+   
+   /* -----------------------------------------------------------------------------
+      FONT IMPORTS & VARIABLES
+      ----------------------------------------------------------------------------- */
+   @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+   
+   :root {
+     /* Font Variables */
+     --font-dm-sans: 'DM Sans', sans-serif;
+   
+     /* Color Variables */
+    
+     --color-primary-gray: #F6F6F6;
+      --color-primary-white: #F6F6F6;
+     --color-primary-black: #272828;
+     --color-primary-blue: #3967E4;  /*E46B39 0d41e1 395be4*/
+     --color-primary-purple: #acd7e9; /*  B1ACE9*/
+   
+     /* Additional Colors */
+     --color-background: #272828;
+     --color-text-primary: #D7DADE;
+     --color-text-muted: #a0a0a0;
+   
+     /* Spacing */
+     --spacing-xs: 0.5rem;
+     --spacing-sm: 1rem;
+     --spacing-md: 1.5rem;
+     --spacing-lg: 2rem;
+     --spacing-xl: 3rem;
+     --spacing-2xl: 4rem;
+
+      /* Letter Spacing */
+      --tight-medium: -5px;
+     --tight-extreme: -11px;
+   
+     /* Border Radius */
+     --radius-sm: 0.5rem;
+     --radius-md: 1rem;
+     --radius-lg: 1.5rem;
+     --radius-xl: 2rem;
+   
+     /* Shadows */
+     --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+     --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
+     --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
+   
+     /* Transitions */
+     --transition-fast: 0.15s ease;
+     --transition-normal: 0.3s ease;
+     --transition-slow: 0.5s ease;
+   
+     
+  }
+   /* -----------------------------------------------------------------------------
+      TAILWIND BASE STYLES
+      ----------------------------------------------------------------------------- */
+   @layer base {
+     * {
+       @apply border-border;
+     }
+     body {
+       @apply bg-background text-foreground;
+     }
+   }
+   
+   /* -----------------------------------------------------------------------------
+      FONT CLASSES
+      ----------------------------------------------------------------------------- */
+   /* Montserrat Font Variants (corrected to use DM Sans as per variable) */
+   .font-thin {
+     font-family: var(--font-dm-sans);
+     font-weight: 100;
+     font-style: normal;
+   }
+   
+   .font-light {
+     font-family: var(--font-dm-sans);
+     font-weight: 300;
+     font-style: normal;
+   }
+   
+   .font-regular {
+     font-family: var(--font-dm-sans);
+     font-weight: 400;
+     font-style: normal;
+   }
+   
+   .font-medium {
+     font-family: var(--font-dm-sans);
+     font-weight: 500;
+     font-style: normal;
+   }
+   
+   .font-semibold {
+     font-family: var(--font-dm-sans);
+     font-weight: 600;
+     font-style: normal;
+   }
+   
+   .font-bold {
+     font-family: var(--font-dm-sans);
+     font-weight: 700;
+     font-style: normal;
+   }
+   
+   .font-black {
+     font-family: var(--font-dm-sans);
+     font-weight: 900;
+     font-style: normal;
+   }
+   
+   /* DM Sans Font Variants */
+   .font-400 {
+     font-family: var(--font-dm-sans);
+     font-style: normal;
+     font-weight: 400;
+     color: rgb(227, 227, 227);
+     font-size: 16px;
+     line-height: 26px;
+   }
+   
+   .font-500 {
+     font-family: var(--font-dm-sans);
+     font-style: normal;
+     font-weight: 500;
+     color: rgb(246, 246, 246);
+     font-size: 18px;
+     line-height: 30px;
+   }
+
+   .font-thin-italic {
+    font-family: var(--font-dm-sans);
+    font-weight: 100;
+    font-style: italic;
+  }
+  
+  .font-light-italic {
+    font-family: var(--font-dm-sans);
+    font-weight: 300;
+    font-style: italic;
+  }
+  
+  .font-regular-italic {
+    font-family: var(--font-dm-sans);
+    font-weight: 400;
+    font-style: italic;
+  }
+  
+  .font-medium-italic {
+    font-family: var(--font-dm-sans);
+    font-weight: 500;
+    font-style: italic;
+  }
+  
+  .font-semibold-italic {
+    font-family: var(--font-dm-sans);
+    font-weight: 600;
+    font-style: italic;
+  }
+  
+  .font-bold-italic {
+    font-family: var(--font-dm-sans);
+    font-weight: 700;
+    font-style: italic;
+  }
+  
+  .font-black-italic {
+    font-family: var(--font-dm-sans);
+    font-weight: 900;
+    font-style: italic;
+  }
+  
+   
+   /* -----------------------------------------------------------------------------
+      RESET & BASE STYLES
+      ----------------------------------------------------------------------------- */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      
+      html {
+        height: 100%;
+        font-size: 16px;
+      }
+      
+      body {
+        font-family: var(--font-dm-sans);
+        background-color: var(--color-background);
+        color: var(--color-text-primary);
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        overflow-x: hidden;
+        height: 100%;
+        margin: 0;
+      }
+      
+      #smooth-wrapper {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow: auto;
+      }
+      
+      #smooth-content {
+        position: relative;
+      }
+   /* -----------------------------------------------------------------------------
+      LAYOUT COMPONENTS
+      ----------------------------------------------------------------------------- */
+   .main-container {
+     min-height: 100vh;
+     position: relative;
+   }
+   
+   /* -----------------------------------------------------------------------------
+      CUSTOM GRID BACKGROUND
+      ----------------------------------------------------------------------------- */
+   .bg-grid-pattern {
+     background-color: var(--color-primary-black); /* #272828 */
+     background-image: linear-gradient(to right, #333 1px, transparent 1px),
+       linear-gradient(to bottom, #333 1px, transparent 1px);
+     background-size: 40px 40px;
+     background-attachment: fixed;
+   }
