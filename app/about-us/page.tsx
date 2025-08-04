@@ -1,162 +1,200 @@
 "use client"
 
-import React, {
-  useEffect,
-  useRef,
-  useMemo,
-  ReactNode,
-  RefObject,
-} from "react"
-import { gsap } from "gsap"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
+import React, { useEffect, useRef, useState } from "react"
+import Matter from "matter-js"
 
-gsap.registerPlugin(ScrollTrigger)
-
-interface ScrollRevealProps {
-  children: string // we enforce string-only here
-  scrollContainerRef?: RefObject<HTMLElement>
-  enableBlur?: boolean
-  baseOpacity?: number
-  baseRotation?: number
-  blurStrength?: number
-  containerClassName?: string
-  textClassName?: string
-  rotationEnd?: string
-  wordAnimationEnd?: string
-}
-
-const ScrollReveal: React.FC<ScrollRevealProps> = ({
-  children,
-  scrollContainerRef,
-  enableBlur = true,
-  baseOpacity = 0.1,
-  baseRotation = 3,
-  blurStrength = 4,
-  containerClassName = "",
-  textClassName = "",
-  rotationEnd = "bottom bottom",
-  wordAnimationEnd = "bottom bottom",
-}) => {
+export default function FallingTextScroll() {
   const containerRef = useRef<HTMLDivElement>(null)
+  const textRef = useRef<HTMLDivElement>(null)
+  const canvasRef = useRef<HTMLDivElement>(null)
 
-  const splitText = useMemo(() => {
-    return children.split(/(\s+)/).map((word, index) => {
-      if (word.match(/^\s+$/)) return word
-      return (
-        <span className="inline-block word" key={index}>
-          {word}
-        </span>
-      )
-    })
-  }, [children])
+  const cleanupRef = useRef<() => void | null>(null)
+  const [effectStarted, setEffectStarted] = useState(false)
 
+  // Scroll trigger logic
   useEffect(() => {
-    const el = containerRef.current
-    if (!el) return
+    const onScroll = () => {
+      if (!containerRef.current) return
+      const rect = containerRef.current.getBoundingClientRect()
 
-    const scroller =
-      scrollContainerRef?.current || window
-
-    gsap.fromTo(
-      el,
-      { transformOrigin: "0% 50%", rotate: baseRotation },
-      {
-        ease: "none",
-        rotate: 0,
-        scrollTrigger: {
-          trigger: el,
-          scroller,
-          start: "top bottom",
-          end: rotationEnd,
-          scrub: true,
-        },
+      if (rect.top <= 50 && !effectStarted) {
+        setEffectStarted(true)
+      } else if (rect.top > 100 && effectStarted) {
+        setEffectStarted(false)
       }
-    )
+    }
 
-    const wordElements = el.querySelectorAll<HTMLElement>(".word")
+    window.addEventListener("scroll", onScroll, { passive: true })
+    onScroll()
+    return () => window.removeEventListener("scroll", onScroll)
+  }, [effectStarted])
 
-    gsap.fromTo(
-      wordElements,
-      { opacity: baseOpacity, willChange: "opacity" },
-      {
-        ease: "none",
-        opacity: 1,
-        stagger: 0.05,
-        scrollTrigger: {
-          trigger: el,
-          scroller,
-          start: "top bottom-=20%",
-          end: wordAnimationEnd,
-          scrub: true,
-        },
+  // Matter.js animation logic
+  useEffect(() => {
+    if (!containerRef.current || !textRef.current || !canvasRef.current) return
+
+    if (cleanupRef.current) {
+      cleanupRef.current()
+      cleanupRef.current = null
+    }
+
+    const wordsEls = textRef.current.querySelectorAll<HTMLElement>("span.word")
+
+    if (!effectStarted) {
+      wordsEls.forEach((el) => {
+        el.style.position = ""
+        el.style.left = ""
+        el.style.top = ""
+        el.style.transform = ""
+        el.style.zIndex = ""
+      })
+      canvasRef.current.innerHTML = ""
+      canvasRef.current.style.opacity = "0"
+      canvasRef.current.style.pointerEvents = "none"
+      return
+    }
+
+    canvasRef.current.style.opacity = "1"
+    canvasRef.current.style.pointerEvents = "none"
+
+    const { Engine, Render, Runner, World, Bodies, Body } = Matter
+
+    const container = containerRef.current
+    const canvas = canvasRef.current
+
+    const width = container.offsetWidth
+    const height = container.offsetHeight
+
+    const rect = {
+      top: container.offsetTop,
+      left: container.offsetLeft,
+      width,
+      height,
+    }
+
+    const engine = Engine.create()
+    engine.world.gravity.y = 0.5
+
+    const render = Render.create({
+      element: canvas,
+      engine,
+      options: {
+        width,
+        height,
+        background: "transparent",
+        wireframes: false,
+        pixelRatio: window.devicePixelRatio,
+      },
+    })
+
+    const boundaries = [
+      Bodies.rectangle(width / 2, height + 50, width, 100, { isStatic: true, render: { visible: false } }),
+      Bodies.rectangle(-50, height / 2, 100, height, { isStatic: true, render: { visible: false } }),
+      Bodies.rectangle(width + 50, height / 2, 100, height, { isStatic: true, render: { visible: false } }),
+      Bodies.rectangle(width / 2, -50, width, 100, { isStatic: true, render: { visible: false } }),
+    ]
+
+    const wordBodies = Array.from(wordsEls).map((el) => {
+      const r = el.getBoundingClientRect()
+      const x = r.left + window.scrollX - rect.left + r.width / 2
+      const y = r.top + window.scrollY - rect.top + r.height / 2
+
+      const body = Bodies.rectangle(x, y, r.width, r.height, {
+        restitution: 0.7,
+        frictionAir: 0.05,
+        render: { fillStyle: "transparent" },
+      })
+
+      Body.setVelocity(body, { x: (Math.random() - 0.5) * 5, y: 0 })
+      Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.1)
+
+      el.style.position = "absolute"
+      el.style.left = `${x}px`
+      el.style.top = `${y}px`
+      el.style.transform = "translate(-50%, -50%)"
+      el.style.zIndex = "10"
+
+      return { el, body }
+    })
+
+    World.add(engine.world, [...boundaries, ...wordBodies.map(wb => wb.body)])
+
+    const runner = Runner.create()
+    Runner.run(runner, engine)
+    Render.run(render)
+
+    let animationFrameId: number
+    const update = () => {
+      wordBodies.forEach(({ el, body }) => {
+        el.style.left = `${body.position.x}px`
+        el.style.top = `${body.position.y}px`
+        el.style.transform = `translate(-50%, -50%) rotate(${body.angle}rad)`
+      })
+      animationFrameId = requestAnimationFrame(update)
+    }
+    update()
+
+    cleanupRef.current = () => {
+      cancelAnimationFrame(animationFrameId)
+      Render.stop(render)
+      Runner.stop(runner)
+      World.clear(engine.world, false)
+      Engine.clear(engine)
+      if (canvas.contains(render.canvas)) {
+        canvas.removeChild(render.canvas)
       }
-    )
-
-    if (enableBlur) {
-      gsap.fromTo(
-        wordElements,
-        { filter: `blur(${blurStrength}px)` },
-        {
-          ease: "none",
-          filter: "blur(0px)",
-          stagger: 0.05,
-          scrollTrigger: {
-            trigger: el,
-            scroller,
-            start: "top bottom-=20%",
-            end: wordAnimationEnd,
-            scrub: true,
-          },
-        }
-      )
+      wordsEls.forEach((el) => {
+        el.style.position = ""
+        el.style.left = ""
+        el.style.top = ""
+        el.style.transform = ""
+        el.style.zIndex = ""
+      })
+      canvas.style.opacity = "0"
+      canvas.style.pointerEvents = "none"
     }
 
     return () => {
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill())
+      if (cleanupRef.current) {
+        cleanupRef.current()
+        cleanupRef.current = null
+      }
     }
-  }, [
-    scrollContainerRef,
-    enableBlur,
-    baseRotation,
-    baseOpacity,
-    rotationEnd,
-    wordAnimationEnd,
-    blurStrength,
-  ])
+  }, [effectStarted])
 
   return (
-    <div ref={containerRef} className={`my-5 ${containerClassName}`}>
-      <p
-        className={`text-[clamp(1.6rem,4vw,3rem)] leading-[1.5] font-semibold ${textClassName}`}
-      >
-        {splitText}
-      </p>
-    </div>
-  )
-}
+    <div className="min-h-[200vh] p-12">
+      <div className="text-center mb-12">
+        <h1 className="text-6xl font-bold leading-tight mb-2 text-primary-white">WE CREATE</h1>
+        <h1 className="text-6xl font-bold leading-tight mb-2 text-blue-600">
+          DIGITAL <span className="text-primary-white">EXPERIENCES</span>
+        </h1>
+        <h2 className="text-lg font-semibold uppercase tracking-widest mt-8 text-primary-white">
+          BRANDING ✦ LOGO ✦ IDENTITY ✦ SOCIAL MEDIA ✦ UI/UX
+        </h2>
+      </div>
 
-export default function ScrollRevealExample() {
-  return (
-    <div className="min-h-screen flex flex-col justify-center items-center p-10">
-      <h1 className="text-6xl font-bold text-center font-regular leading-tight">
-        WE CREATE <br />
-        <span className="text-primary-blue">DIGITAL</span> <br />
-        EXPERIENCES
-      </h1>
-      <h2 className="mt-8 text-center text-2xl font-medium tracking-wide uppercase">
-        BRANDING ✦ LOGO ✦ IDENTITY ✦ SOCIAL MEDIA ✦ UI/UX
-      </h2>
-
-      <ScrollReveal
-        baseOpacity={0}
-        enableBlur={true}
-        baseRotation={0}
-        blurStrength={25}
-        containerClassName="mt-16 max-w-6xl"
-        textClassName="text-center"
+      <div
+        ref={containerRef}
+        className="relative px-20 mx-auto min-h-[750px] overflow-visible rounded-lg p-6 bg-transparent"
       >
-        We are experts in creating top quality graphic design and social media marketing to heighten your brand. InnovPixel is your go-to partner in designing memorable visual identities.
-      </ScrollReveal>
+        <div
+          ref={textRef}
+          className="text-5xl font-thin leading-[1.4] text-center select-none cursor-default"
+        >
+          {"We are experts in creating top quality graphic design and social media marketing to heighten your brand. InnovPixel is your go-to partner in designing memorable visual identities."
+            .split(" ")
+            .map((word, i) => (
+              <span key={i} className="word whitespace-nowrap">
+                {word}&nbsp;
+              </span>
+            ))}
+        </div>
+        <div
+          ref={canvasRef}
+          className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-0 transition-opacity duration-300 z-10"
+        />
+      </div>
     </div>
   )
 }

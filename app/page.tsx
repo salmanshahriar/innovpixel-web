@@ -1,33 +1,57 @@
-import Header from "@/components/home/header";
-import HeroSection from "@/components/home/hero-section";
-import CardsSection from "@/components/home/cards-section";
-import AboutUs from "@/app/about-us/page";
-import Footer from "@/components/footer/page";
-import Squares from "@/components/global/background"; 
+"use client"
 
+import { useEffect, useRef } from "react"
+import { gsap, ScrollSmoother } from "@/lib/gsap"
+
+import Header from "@/components/home/header"
+import HeroSection from "@/components/home/hero-section"
+import CardsSection from "@/components/home/cards-section"
+import AboutUs from "@/app/about-us/page"
+import Footer from "@/components/footer/page"
+import Squares from "@/components/global/background"
 
 export default function Home() {
+  const smootherRef = useRef<ScrollSmoother | null>(null)
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && !smootherRef.current) {
+      smootherRef.current = ScrollSmoother.create({
+        wrapper: "#smooth-wrapper",
+        content: "#smooth-content",
+        smooth: 1.5,
+        effects: true,
+      })
+    }
+
+    return () => {
+      smootherRef.current?.kill()
+      smootherRef.current = null
+    }
+  }, [])
+
+
+
   return (
-    <div className="relative min-h-screen">
-      {/* Background Canvas */}
+    <div id="smooth-wrapper" className="relative overflow-hidden min-h-screen">
       <div className="fixed inset-0 z-[-1]">
         <Squares
-          direction="diagonal" 
-          speed={0.5} 
-          borderColor="#666" 
-          squareSize={40} 
-          hoverFillColor="#333" 
+          direction="diagonal"
+          speed={0.5}
+          borderColor="#666"
+          squareSize={40}
+          hoverFillColor="#333"
         />
       </div>
 
-      {/* Content */}
-      <div className="relative z-10">
-        <Header />
+      <Header />
+      <div id="smooth-content" className="relative z-10">
         <HeroSection />
-        <CardsSection />
+        <div className="fade-up">
+          <CardsSection />
+        </div>
         <AboutUs />
-        <Footer/>
+        <Footer />
       </div>
     </div>
-  );
+  )
 }

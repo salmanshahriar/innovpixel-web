@@ -1,28 +1,41 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ScrollTrigger } from "@/lib/gsap";
 
-export default function Header() {
-  const [isScrolled, setIsScrolled] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
+interface HeaderProps {
+  smootherRef?: React.MutableRefObject<any | null>;
+}
+
+export default function Header({ smootherRef }: HeaderProps) {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50)
-    }
+    // Use the smooth content container as scroller, or fallback to window
+    const scroller = smootherRef?.current?.content() || window;
 
-    window.addEventListener("scroll", handleScroll, { passive: true })
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+    const trigger = ScrollTrigger.create({
+      scroller,
+      start: 50,
+      onUpdate: (self) => {
+        setIsScrolled(self.scroll() > 50);
+      },
+    });
 
-  const toggleMenu = () => setMenuOpen(!menuOpen)
+    return () => {
+      trigger.kill();
+    };
+  }, [smootherRef]);
+
+  const toggleMenu = () => setMenuOpen((prev) => !prev);
 
   return (
     <>
-      {/* Spacer to prevent layout shift */}
+      {/* Spacer for layout shift */}
       <div className={isScrolled ? "h-[80px]" : "h-[160px]"} />
 
       <motion.header
@@ -52,7 +65,7 @@ export default function Header() {
           className="flex items-center justify-between max-w-screen-xl mx-auto w-full"
           initial={false}
           animate={{
-            paddingLeft: isScrolled ? 0 : 80, // px-20
+            paddingLeft: isScrolled ? 0 : 80,
             paddingRight: isScrolled ? 0 : 80,
             transition: { duration: 0.4, ease: "easeInOut" },
           }}
@@ -152,5 +165,5 @@ export default function Header() {
         )}
       </AnimatePresence>
     </>
-  )
+  );
 }
