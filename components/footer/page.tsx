@@ -25,7 +25,7 @@ export default function FooterDemo() {
       </div>
 
       <div className="mt-12 text-sm text-gray-500">
-        © {new Date().getFullYear()} Salman Shahriar. All rights reserved.
+        © {new Date().getFullYear()} InnovPixel. All rights reserved.
       </div>
     </footer>
   );

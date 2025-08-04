@@ -60,7 +60,7 @@ export default function CardsSection() {
       rotateX: custom?.rotateX ?? 0,
       transition: {
         duration: 0.7,
-        ease: [0.4, 0, 0.2, 1],
+        ease: [0.42, 0, 0.58, 1], // Use a cubic-bezier easing function
       },
     }),
     exit: { opacity: 0, scale: 0.95, y: 30, transition: { duration: 0.3, ease: "easeInOut" } },
@@ -92,105 +92,62 @@ export default function CardsSection() {
       ref={sectionRef}
       className="relative z-10 -mt-24 px-4 pb-20 md:px-8 lg:px-16"
     >
-      <motion.div
-        layout
-        transition={{ layout: { duration: 0.7, ease: [0.4, 0, 0.2, 1] } }}
-        className={`grid gap-8 ${getGridClasses(stage)}`}
-      >
-        {/* Card 1 */}
-        <motion.div
-          layout
-          layoutId="card-1"
-          variants={cardVariants}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          custom={{}}
-          className={`rounded-xl border-none bg-white p-6 shadow-lg ${getCard1Classes(stage)}`}
-        >
-          <CardHeader className="p-0">
-            <CardTitle className="flex items-center gap-2 text-2xl font-sans font-normal text-black">
-              <Github className="h-6 w-6" />
-              Open Source
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="mt-4 p-0">
-            <p className="text-xl font-sans font-medium text-black">
-              WANT TO CONTRIBUTE? <br /> CLICK THE CARD
-            </p>
-          </CardContent>
-        </motion.div>
+ <motion.div
+  layout
+  transition={{ layout: { duration: 0.7, ease: [0.4, 0, 0.2, 1] } }}
+  className={`grid gap-8 ${getGridClasses(stage)}`}
+>
+  {/* Card 1 - We Craft */}
+  <motion.div
+    layout
+    layoutId="card-1"
+    variants={cardVariants}
+    initial="initial"
+    animate="animate"
+    exit="exit"
+    custom={{}}
+    className={`group cursor-pointer rounded-xl border-none bg-white p-8 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] flex items-center justify-center ${getCard1Classes(stage)}`}
+  >
+    <CardTitle className="text-6xl font-black text-black text-center leading-tight">
+      We Craft
+    </CardTitle>
+  </motion.div>
 
-        {/* Cards 2 & 3 Container */}
-        <div className={getCardsContainerClasses(stage)}>
-          {/* Card 2 */}
-          <motion.div
-            layout
-            layoutId="card-2"
-            variants={cardVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            custom={card2Anim(stage)}
-            className="rounded-xl border-none bg-neutral-500 p-6 shadow-lg"
-          >
-            <CardHeader className="p-0">
-              <CardTitle className="flex items-center gap-2 text-2xl font-sans font-normal text-white">
-                <Code className="h-6 w-6" />
-                npm i react-haiku
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="mt-4 p-0">
-              <div className="grid gap-2">
-                <p className="text-xl font-sans font-medium text-white">43 Hooks</p>
-                <p className="text-xl font-sans font-medium text-white">8 Utilities</p>
-                <p className="text-xl font-sans font-medium text-white">
-                  <Package className="inline-block h-5 w-5 align-middle" />
-                  {" <7Kb Bundle"}
-                </p>
-              </div>
-            </CardContent>
-          </motion.div>
+  {/* Cards 2 & 3 Container */}
+  <div className={getCardsContainerClasses(stage)}>
+    {/* Card 2 - We Visualize */}
+    <motion.div
+      layout
+      layoutId="card-2"
+      variants={cardVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      custom={card2Anim(stage)}
+      className="group cursor-pointer rounded-xl border-none bg-neutral-500 p-8 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] flex items-center justify-center"
+    >
+      <CardTitle className="text-6xl font-black text-white text-center leading-tight">
+        We Visualize
+      </CardTitle>
+    </motion.div>
 
-          {/* Card 3 */}
-          <motion.div
-            layout
-            layoutId="card-3"
-            variants={cardVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            custom={card3Anim(stage)}
-            className="rounded-xl border-none bg-primary-blue p-6 shadow-lg"
-          >
-            <CardHeader className="flex w-full flex-row items-center justify-between p-0">
-              <CardTitle className="text-2xl font-sans font-normal text-white">
-                useDebounce()
-              </CardTitle>
-              <Button className="rounded-full bg-white px-4 py-2 text-lg font-sans font-normal text-primary-blue hover:bg-white/90">
-                Try it!
-              </Button>
-            </CardHeader>
-            <CardContent className="mt-4 w-full p-0">
-              <div className="grid gap-4">
-                <div className="text-lg font-sans font-normal text-white">
-                  Realtime Value: <span className="font-medium">{realtimeValue}</span>
-                </div>
-                <div className="text-lg font-sans font-normal text-white">
-                  Debounce value: <span className="font-medium">{debounceValue}</span>
-                </div>
-                <Input
-                  type="text"
-                  placeholder="Type something!"
-                  className="rounded-md border-none bg-white/20 text-white placeholder:text-white/70 focus:ring-2 focus:ring-white focus:ring-offset-0"
-                  value={inputValue}
-                  onChange={handleInputChange}
-                />
-              </div>
-            </CardContent>
-          </motion.div>
-        </div>
-      </motion.div>
+    {/* Card 3 - We Better Do */}
+    <motion.div
+      layout
+      layoutId="card-3"
+      variants={cardVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      custom={card3Anim(stage)}
+      className="group cursor-pointer rounded-xl border-none bg-primary-blue p-8 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] flex items-center justify-center"
+    >
+      <CardTitle className="text-6xl font-black text-white text-center leading-tight">
+        We Better Do
+      </CardTitle>
+    </motion.div>
+  </div>
+</motion.div>
     </section>
   )
 }

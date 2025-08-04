@@ -17,7 +17,7 @@ export default function FallingTextScroll() {
       if (!containerRef.current) return
       const rect = containerRef.current.getBoundingClientRect()
 
-      if (rect.top <= 50 && !effectStarted) {
+      if (rect.top <= 80 && !effectStarted) {
         setEffectStarted(true)
       } else if (rect.top > 100 && effectStarted) {
         setEffectStarted(false)
@@ -41,21 +41,30 @@ export default function FallingTextScroll() {
     const wordsEls = textRef.current.querySelectorAll<HTMLElement>("span.word")
 
     if (!effectStarted) {
-      wordsEls.forEach((el) => {
-        el.style.position = ""
-        el.style.left = ""
-        el.style.top = ""
-        el.style.transform = ""
-        el.style.zIndex = ""
-      })
-      canvasRef.current.innerHTML = ""
+      // Smooth fade out of canvas
+      canvasRef.current.style.transition = "opacity 0.6s ease"
       canvasRef.current.style.opacity = "0"
-      canvasRef.current.style.pointerEvents = "none"
+
+      setTimeout(() => {
+        wordsEls.forEach((el) => {
+          el.style.transition = "all 0.5s ease"
+          el.style.left = ""
+          el.style.top = ""
+          el.style.transform = ""
+          el.style.position = ""
+          el.style.zIndex = ""
+        })
+        canvasRef.current!.innerHTML = ""
+        canvasRef.current!.style.pointerEvents = "none"
+      }, 600)
+
       return
     }
 
+    // Start effect
     canvasRef.current.style.opacity = "1"
     canvasRef.current.style.pointerEvents = "none"
+    canvasRef.current.style.transition = "opacity 0.3s ease"
 
     const { Engine, Render, Runner, World, Bodies, Body } = Matter
 
@@ -73,7 +82,7 @@ export default function FallingTextScroll() {
     }
 
     const engine = Engine.create()
-    engine.world.gravity.y = 0.5
+    engine.world.gravity.y = 10
 
     const render = Render.create({
       element: canvas,
@@ -100,8 +109,8 @@ export default function FallingTextScroll() {
       const y = r.top + window.scrollY - rect.top + r.height / 2
 
       const body = Bodies.rectangle(x, y, r.width, r.height, {
-        restitution: 0.7,
-        frictionAir: 0.05,
+        restitution: 1,
+        frictionAir: 0.1,
         render: { fillStyle: "transparent" },
       })
 
@@ -163,7 +172,7 @@ export default function FallingTextScroll() {
   }, [effectStarted])
 
   return (
-    <div className="min-h-[200vh] p-12">
+    <div className="h-full p-12">
       <div className="text-center mb-12">
         <h1 className="text-6xl font-bold leading-tight mb-2 text-primary-white">WE CREATE</h1>
         <h1 className="text-6xl font-bold leading-tight mb-2 text-blue-600">
@@ -176,7 +185,7 @@ export default function FallingTextScroll() {
 
       <div
         ref={containerRef}
-        className="relative px-20 mx-auto min-h-[750px] overflow-visible rounded-lg p-6 bg-transparent"
+        className="relative px-20 mx-auto min-h-[1000px] overflow-visible rounded-lg p-6 bg-transparent"
       >
         <div
           ref={textRef}

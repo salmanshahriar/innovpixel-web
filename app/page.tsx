@@ -9,6 +9,7 @@ import CardsSection from "@/components/home/cards-section"
 import AboutUs from "@/app/about-us/page"
 import Footer from "@/components/footer/page"
 import Squares from "@/components/global/background"
+import WhatWeDo from "@/components/home/what-we-do"
 
 export default function Home() {
   const smootherRef = useRef<ScrollSmoother | null>(null)
@@ -50,6 +51,7 @@ export default function Home() {
           <CardsSection />
         </div>
         <AboutUs />
+        <WhatWeDo />
         <Footer />
       </div>
     </div>
