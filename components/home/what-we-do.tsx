@@ -9,32 +9,35 @@ import React, {
 } from "react"
 import { gsap } from "gsap"
 
-// ⛏️ Custom Hook: Responsive column count
 const useMedia = (
   queries: string[],
   values: number[],
   defaultValue: number
 ): number => {
-  const get = () =>
-    values[queries.findIndex((q) => matchMedia(q).matches)] ?? defaultValue
-
-  const [value, setValue] = useState<number>(get)
+  const [value, setValue] = useState<number>(defaultValue)
 
   useEffect(() => {
-    const handler = () => setValue(get)
-    queries.forEach((q) =>
-      matchMedia(q).addEventListener("change", handler)
-    )
+    if (typeof window === "undefined") return
+
+    const mediaQueryLists = queries.map((q) => window.matchMedia(q))
+    const getValue = () => {
+      const index = mediaQueryLists.findIndex((mql) => mql.matches)
+      return values[index] ?? defaultValue
+    }
+
+    const handler = () => setValue(getValue())
+    mediaQueryLists.forEach((mql) => mql.addEventListener("change", handler))
+    setValue(getValue())
+
     return () =>
-      queries.forEach((q) =>
-        matchMedia(q).removeEventListener("change", handler)
+      mediaQueryLists.forEach((mql) =>
+        mql.removeEventListener("change", handler)
       )
-  }, [queries])
+  }, [queries, values, defaultValue])
 
   return value
 }
 
-// ⛏️ Hook to measure container dimensions
 const useMeasure = <T extends HTMLElement>() => {
   const ref = useRef<T | null>(null)
   const [size, setSize] = useState({ width: 0, height: 0 })
@@ -52,7 +55,6 @@ const useMeasure = <T extends HTMLElement>() => {
   return [ref, size] as const
 }
 
-// ⛏️ Image preloader
 const preloadImages = async (urls: string[]): Promise<void> => {
   await Promise.all(
     urls.map(
@@ -66,7 +68,6 @@ const preloadImages = async (urls: string[]): Promise<void> => {
   )
 }
 
-// 🎯 Type Definitions
 interface Item {
   id: string
   img: string
@@ -81,7 +82,6 @@ interface GridItem extends Item {
   h: number
 }
 
-// 🧱 Masonry Component
 const Masonry: React.FC = () => {
   const items: Item[] = [
     {
@@ -114,7 +114,6 @@ const Masonry: React.FC = () => {
       url: "https://example.com/five",
       height: 300,
     },
-    // (add more items if needed)
   ]
 
   const columns = useMedia(
@@ -140,8 +139,7 @@ const Masonry: React.FC = () => {
   const hoverScale = 0.95
   const colorShiftOnHover = false
   const ease = "power3.out"
-
-  const gap = 16 // gap between images in px
+  const gap = 16
 
   const getInitialPosition = (item: GridItem) => {
     const containerRect = containerRef.current?.getBoundingClientRect()
@@ -173,12 +171,11 @@ const Masonry: React.FC = () => {
   const grid = useMemo<GridItem[]>(() => {
     if (!width) return []
     const colHeights = new Array(columns).fill(0)
-    // subtract gaps between columns
     const columnWidth = (width - gap * (columns - 1)) / columns
 
     return items.map((child) => {
       const col = colHeights.indexOf(Math.min(...colHeights))
-      const height = child.height / 2
+      const height = child.height
       const x = (columnWidth + gap) * col
       const y = colHeights[col]
       colHeights[col] += height + gap
@@ -252,10 +249,7 @@ const Masonry: React.FC = () => {
   }
 
   return (
-    <div
-      className="w-full px-20 mx-auto max-w-screen-2xl"
-      style={{ boxSizing: "border-box" }}
-    >
+    <div className="w-full px-20 mx-auto max-w-screen-2xl pb-20">
       <div
         ref={containerRef}
         style={{
@@ -264,7 +258,6 @@ const Masonry: React.FC = () => {
           height: grid.length
             ? Math.max(...grid.map((i) => i.y + i.h))
             : 0,
-          boxSizing: "border-box",
         }}
       >
         {grid.map((item) => (
@@ -290,7 +283,7 @@ const Masonry: React.FC = () => {
                 height: "100%",
                 objectFit: "cover",
                 borderRadius: "8px",
-                display: "block", // removes inline spacing below images
+                display: "block",
               }}
             />
             {colorShiftOnHover && (
