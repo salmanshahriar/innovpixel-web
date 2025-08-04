@@ -17,7 +17,7 @@ export default function FallingTextScroll() {
       if (!containerRef.current) return
       const rect = containerRef.current.getBoundingClientRect()
 
-      if (rect.top <= 80 && !effectStarted) {
+      if (rect.top <= 20 && !effectStarted) {
         setEffectStarted(true)
       } else if (rect.top > 100 && effectStarted) {
         setEffectStarted(false)
@@ -185,13 +185,13 @@ export default function FallingTextScroll() {
 
       <div
         ref={containerRef}
-        className="relative px-20 mx-auto min-h-[1000px] overflow-visible rounded-lg p-6 bg-transparent"
+        className="relative px-20 mx-auto min-h-[600px] overflow-visible rounded-lg p-6 bg-transparent"
       >
         <div
           ref={textRef}
-          className="text-5xl font-thin leading-[1.4] text-center select-none cursor-default"
+          className="text-5xl font-thin leading-loose text-center select-none cursor-default"
         >
-          {"We are experts in creating top quality graphic design and social media marketing to heighten your brand. InnovPixel is your go-to partner in designing memorable visual identities."
+          {"We are experts in creating top quality graphic design and social media marketing to heighten your brand."
             .split(" ")
             .map((word, i) => (
               <span key={i} className="word whitespace-nowrap">
