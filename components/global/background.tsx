@@ -10,7 +10,7 @@ interface SquaresProps {
   gridOpacity?: number
 }
 
-const primaryOrange = "#F6F6F6"
+const primaryColor = "#F6F6F6"
 
 export default function Squares({
   speed = 0.02,
@@ -81,7 +81,7 @@ export default function Squares({
         const gy = y + oy
         const alpha = calculateAlpha(gx, gy, cx, cy, width, height)
         if (alpha <= 0) continue
-        ctx.strokeStyle = primaryOrange
+        ctx.strokeStyle = primaryColor
         ctx.globalAlpha = alpha
         ctx.strokeRect(gx, gy, squareSize, squareSize)
       }
@@ -124,17 +124,18 @@ export default function Squares({
   }, [])
 
   return (
-    <div className="relative w-full h-full">
+    <div className="fixed inset-0 w-screen h-screen z-[-1]">
       <canvas
         ref={noiseCanvasRef}
-        className="absolute top-0 left-0 w-full h-full pointer-events-none"
+        className="absolute inset-0 w-full h-full pointer-events-none"
         style={{ zIndex: 0 }}
       />
       <canvas
         ref={gridCanvasRef}
-        className="absolute top-0 left-0 w-full h-full pointer-events-none"
+        className="absolute inset-0 w-full h-full pointer-events-none"
         style={{ zIndex: 1 }}
       />
     </div>
   )
+  
 }

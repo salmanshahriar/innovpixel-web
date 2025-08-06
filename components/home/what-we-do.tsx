@@ -249,7 +249,7 @@ const Masonry: React.FC = () => {
   }
 
   return (
-    <div className="w-full px-20 mx-auto max-w-screen-2xl pb-20">
+    <div className="w-full px-10 mx-auto max-w-screen-2xl pb-20">
       <div
         ref={containerRef}
         style={{
