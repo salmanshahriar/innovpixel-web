@@ -115,7 +115,14 @@ export default function Header({ smootherRef }: HeaderProps) {
                 className="text-2xl md:text-3xl font-bold text-white hover:text-primary-blue transition-colors duration-300 focus:outline-none focus:text-primary-blue"
                 aria-label="InnovPixel Home"
               >
-                InnovPixel
+                <img
+            
+              src="./innovpixel-logo.png"
+              width={64}
+              height={64}
+              alt="InnovPixel Logo"
+              className="inline-block h-7 md:h-8 w-full cursor-pointer"
+            /> 
               </Link>
             </motion.div>
 
