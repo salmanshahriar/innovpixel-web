@@ -90,21 +90,16 @@ export default function CardsSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative z-10 -mt-24 px-4 pb-20 md:px-8 lg:px-16"
-      style={{ minHeight: "700px" }}
+      className="relative z-10 md:-mt-24 px-4 pb-36 md:px-8 lg:px-16 "
     >
       <div
         ref={gridRef}
         className="grid gap-6 sm:gap-8 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-        style={{
-          height: "auto",
-          perspective: "1000px",
-        }}
       >
         {/* Card 1 */}
         <div
           ref={card1Ref}
-          className="cursor-pointer rounded-xl bg-white shadow-lg overflow-hidden relative min-h-[280px]"
+          className="cursor-pointer rounded-xl bg-white shadow-lg overflow-hidden relative min-h-[400px]"
           style={{
             transformStyle: "preserve-3d",
             willChange: "transform",
@@ -127,7 +122,7 @@ export default function CardsSection() {
         {/* Card 2 */}
         <div
           ref={card2Ref}
-          className="cursor-pointer rounded-xl bg-neutral-500 shadow-lg overflow-hidden relative min-h-[280px]"
+          className="cursor-pointer rounded-xl bg-neutral-500 shadow-lg overflow-hidden relative min-h-[400px]"
           style={{
             transformStyle: "preserve-3d",
             willChange: "transform",
@@ -150,7 +145,7 @@ export default function CardsSection() {
         {/* Card 3 */}
         <div
           ref={card3Ref}
-          className="cursor-pointer rounded-xl bg-blue-600 shadow-lg overflow-hidden relative min-h-[280px]"
+          className="cursor-pointer rounded-xl bg-blue-600 shadow-lg overflow-hidden relative min-h-[400px]"
           style={{
             transformStyle: "preserve-3d",
             willChange: "transform",

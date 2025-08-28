@@ -1,141 +1,158 @@
 "use client"
 
-import React, { useRef, useEffect } from "react"
+import type React from "react"
+import { useRef, useEffect } from "react"
+
+type CanvasStrokeStyle = string | CanvasGradient | CanvasPattern
+
+interface GridOffset {
+  x: number
+  y: number
+}
 
 interface SquaresProps {
+  direction?: "diagonal" | "up" | "right" | "down" | "left"
   speed?: number
+  borderColor?: CanvasStrokeStyle
   squareSize?: number
-  directionChangeInterval?: number
-  noiseBrightness?: number
-  gridOpacity?: number
+  hoverFillColor?: CanvasStrokeStyle
 }
 
-const primaryColor = "#F6F6F6"
-
-export default function Squares({
-  speed = 0.02,
-  squareSize = 2.5, // 50% smaller
-  directionChangeInterval = 5000, // 5 seconds
-  noiseBrightness = 50, // slightly brighter gray
-  gridOpacity = 0.1, // reduced opacity
-}: SquaresProps) {
-  const gridCanvasRef = useRef<HTMLCanvasElement>(null)
-  const noiseCanvasRef = useRef<HTMLCanvasElement>(null)
+const Squares: React.FC<SquaresProps> = ({
+  direction = "right",
+  speed = 1,
+  borderColor = "#999",
+  squareSize = 40,
+  hoverFillColor = "#222",
+}) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
   const requestRef = useRef<number | null>(null)
-
-  const position = useRef({ x: 0, y: 0 })
-  const directionIndex = useRef(0)
-  const lastDirectionChangeTime = useRef<number>(performance.now())
-
-  const directions = [
-    { x: 1, y: -1 }, // LB → RT
-    { x: 1, y: 1 },  // RT → RB
-    { x: -1, y: -1 },// RB → LT
-    { x: -1, y: 1 }, // LT → LB
-  ]
-
-  const resizeCanvas = () => {
-    [gridCanvasRef.current, noiseCanvasRef.current].forEach((canvas) => {
-      if (canvas) {
-        canvas.width = canvas.offsetWidth
-        canvas.height = canvas.offsetHeight
-      }
-    })
-  }
+  const numSquaresX = useRef<number>(0)
+  const numSquaresY = useRef<number>(0)
+  const gridOffset = useRef<GridOffset>({ x: 0, y: 0 })
+  const hoveredSquareRef = useRef<GridOffset | null>(null)
 
   useEffect(() => {
-    resizeCanvas()
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext("2d")
+
+    const resizeCanvas = () => {
+      canvas.width = canvas.offsetWidth
+      canvas.height = canvas.offsetHeight
+      numSquaresX.current = Math.ceil(canvas.width / squareSize) + 1
+      numSquaresY.current = Math.ceil(canvas.height / squareSize) + 1
+    }
+
     window.addEventListener("resize", resizeCanvas)
-    return () => window.removeEventListener("resize", resizeCanvas)
-  }, [])
+    resizeCanvas()
 
-  const drawNoise = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
-    const imageData = ctx.createImageData(width, height)
-    const data = imageData.data
-    for (let i = 0; i < data.length; i += 4) {
-      const gray = noiseBrightness + Math.floor(Math.random() * 31.68) // 20% faster flicker
-      data[i] = gray
-      data[i + 1] = gray
-      data[i + 2] = gray
-      data[i + 3] = 128
+    const drawGrid = () => {
+      if (!ctx) return
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+      const startX = Math.floor(gridOffset.current.x / squareSize) * squareSize
+      const startY = Math.floor(gridOffset.current.y / squareSize) * squareSize
+
+      for (let x = startX; x < canvas.width + squareSize; x += squareSize) {
+        for (let y = startY; y < canvas.height + squareSize; y += squareSize) {
+          const squareX = x - (gridOffset.current.x % squareSize)
+          const squareY = y - (gridOffset.current.y % squareSize)
+
+          if (
+            hoveredSquareRef.current &&
+            Math.floor((x - startX) / squareSize) === hoveredSquareRef.current.x &&
+            Math.floor((y - startY) / squareSize) === hoveredSquareRef.current.y
+          ) {
+            ctx.fillStyle = hoverFillColor
+            ctx.fillRect(squareX, squareY, squareSize, squareSize)
+          }
+
+          ctx.strokeStyle = borderColor
+          ctx.strokeRect(squareX, squareY, squareSize, squareSize)
+        }
+      }
+
+      const gradient = ctx.createRadialGradient(
+        canvas.width / 2,
+        canvas.height / 2,
+        0,
+        canvas.width / 2,
+        canvas.height / 2,
+        Math.sqrt(canvas.width ** 2 + canvas.height ** 2) / 2,
+      )
+      gradient.addColorStop(0, "rgba(0, 0, 0, 0)")
+      gradient.addColorStop(1, "#060606")
+
+      ctx.fillStyle = gradient
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
     }
-    ctx.putImageData(imageData, 0, 0)
-  }
 
-  const calculateAlpha = (x: number, y: number, cx: number, cy: number, w: number, h: number) => {
-    const dx = (x - cx) / (w * 0.35)
-    const dy = (y - cy) / (h * 0.45)
-    const d = Math.sqrt(dx * dx + dy * dy)
-    const inner = 0.6, outer = 1.0
-    if (d <= inner) return gridOpacity
-    if (d >= outer) return 0
-    return gridOpacity * (1 - (d - inner) / (outer - inner))
-  }
+    const updateAnimation = () => {
+      const effectiveSpeed = Math.max(speed, 0.1)
+      switch (direction) {
+        case "right":
+          gridOffset.current.x = (gridOffset.current.x - effectiveSpeed + squareSize) % squareSize
+          break
+        case "left":
+          gridOffset.current.x = (gridOffset.current.x + effectiveSpeed + squareSize) % squareSize
+          break
+        case "up":
+          gridOffset.current.y = (gridOffset.current.y + effectiveSpeed + squareSize) % squareSize
+          break
+        case "down":
+          gridOffset.current.y = (gridOffset.current.y - effectiveSpeed + squareSize) % squareSize
+          break
+        case "diagonal":
+          gridOffset.current.x = (gridOffset.current.x - effectiveSpeed + squareSize) % squareSize
+          gridOffset.current.y = (gridOffset.current.y - effectiveSpeed + squareSize) % squareSize
+          break
+        default:
+          break
+      }
 
-  const drawGrid = (ctx: CanvasRenderingContext2D, width: number, height: number, ox: number, oy: number) => {
-    ctx.clearRect(0, 0, width, height)
-    const cx = width / 2, cy = height / 2
-    for (let x = -squareSize; x < width + squareSize; x += squareSize) {
-      for (let y = -squareSize; y < height + squareSize; y += squareSize) {
-        const gx = x + ox
-        const gy = y + oy
-        const alpha = calculateAlpha(gx, gy, cx, cy, width, height)
-        if (alpha <= 0) continue
-        ctx.strokeStyle = primaryColor
-        ctx.globalAlpha = alpha
-        ctx.strokeRect(gx, gy, squareSize, squareSize)
+      drawGrid()
+      requestRef.current = requestAnimationFrame(updateAnimation)
+    }
+
+    const handleMouseMove = (event: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect()
+      const mouseX = event.clientX - rect.left
+      const mouseY = event.clientY - rect.top
+
+      const startX = Math.floor(gridOffset.current.x / squareSize) * squareSize
+      const startY = Math.floor(gridOffset.current.y / squareSize) * squareSize
+
+      const hoveredSquareX = Math.floor((mouseX + gridOffset.current.x - startX) / squareSize)
+      const hoveredSquareY = Math.floor((mouseY + gridOffset.current.y - startY) / squareSize)
+
+      if (
+        !hoveredSquareRef.current ||
+        hoveredSquareRef.current.x !== hoveredSquareX ||
+        hoveredSquareRef.current.y !== hoveredSquareY
+      ) {
+        hoveredSquareRef.current = { x: hoveredSquareX, y: hoveredSquareY }
       }
     }
-    ctx.globalAlpha = 1
-  }
 
-  const update = () => {
-    const gridCanvas = gridCanvasRef.current
-    const noiseCanvas = noiseCanvasRef.current
-    if (!gridCanvas || !noiseCanvas) return
-    const gridCtx = gridCanvas.getContext("2d")
-    const noiseCtx = noiseCanvas.getContext("2d")
-    if (!gridCtx || !noiseCtx) return
-
-    const w = gridCanvas.width
-    const h = gridCanvas.height
-
-    drawNoise(noiseCtx, w, h)
-    drawGrid(gridCtx, w, h, position.current.x, position.current.y)
-
-    const now = performance.now()
-    if (now - lastDirectionChangeTime.current >= directionChangeInterval) {
-      directionIndex.current = (directionIndex.current + 1) % directions.length
-      lastDirectionChangeTime.current = now
+    const handleMouseLeave = () => {
+      hoveredSquareRef.current = null
     }
 
-    const dir = directions[directionIndex.current]
-    position.current.x += dir.x * speed
-    position.current.y += dir.y * speed
+    canvas.addEventListener("mousemove", handleMouseMove)
+    canvas.addEventListener("mouseleave", handleMouseLeave)
+    requestRef.current = requestAnimationFrame(updateAnimation)
 
-    requestRef.current = requestAnimationFrame(update)
-  }
-
-  useEffect(() => {
-    requestRef.current = requestAnimationFrame(update)
     return () => {
+      window.removeEventListener("resize", resizeCanvas)
       if (requestRef.current) cancelAnimationFrame(requestRef.current)
+      canvas.removeEventListener("mousemove", handleMouseMove)
+      canvas.removeEventListener("mouseleave", handleMouseLeave)
     }
-  }, [])
+  }, [direction, speed, borderColor, hoverFillColor, squareSize])
 
-  return (
-    <div className="fixed inset-0 w-screen h-screen z-[-1]">
-      <canvas
-        ref={noiseCanvasRef}
-        className="absolute inset-0 w-full h-full pointer-events-none"
-        style={{ zIndex: 0 }}
-      />
-      <canvas
-        ref={gridCanvasRef}
-        className="absolute inset-0 w-full h-full pointer-events-none"
-        style={{ zIndex: 1 }}
-      />
-    </div>
-  )
-  
+  return <canvas ref={canvasRef} className="w-full h-full border-none block"></canvas>
 }
+
+export default Squares

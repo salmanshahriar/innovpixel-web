@@ -8,7 +8,7 @@ import HeroSection from "@/components/home/hero-section"
 import CardsSection from "@/components/home/cards-section"
 import AboutUs from "@/app/about-us/page"
 import Footer from "@/components/footer/page"
-import Squares from "@/components/global/background"
+import Background from "@/components/global/background"
 import WhatWeDo from "@/components/home/what-we-do"
 
 export default function Home() {
@@ -33,13 +33,13 @@ export default function Home() {
 
 
   return (
-    <div id="smooth-wrapper" className="relative overflow-hidden min-h-screen">
-      <div className="fixed inset-0 z-[-1]">
-        <Squares
+    <div id="smooth-wrapper" className="relative overflow-hidden min-h-screen bg-black/35">
+      <div className="fixed inset-0 z-[-1] opacity-15">
+        <Background
           direction="diagonal"
           speed={0.5}
-          borderColor="#666"
-          squareSize={40}
+          borderColor="#999"
+          squareSize={55}
           hoverFillColor="#333"
         />
       </div>
@@ -51,7 +51,7 @@ export default function Home() {
           <CardsSection />
         </div>
         <AboutUs />
-        <WhatWeDo />
+        {/* <WhatWeDo /> */}
         <Footer />
       </div>
     </div>
