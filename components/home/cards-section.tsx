@@ -11,7 +11,7 @@ export default function CardsSection() {
   const card3Ref = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
-    if (window.innerWidth < 768) return // 🔒 disable GSAP hover on small screens
+    if (window.innerWidth < 768) return 
 
     const cards = [card1Ref.current, card2Ref.current, card3Ref.current]
 

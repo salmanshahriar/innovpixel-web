@@ -157,10 +157,10 @@ export default function Header({ smootherRef }: HeaderProps) {
               }}
             >
               <Button 
-                className="rounded-full bg-primary-blue hover:bg-primary-blue/90 active:bg-primary-blue/80 px-8 py-2.5 text-base font-medium text-white transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary-blue/50 focus:ring-offset-2 focus:ring-offset-transparent"
+                className="rounded-md bg-primary-blue hover:bg-primary-blue/90 active:bg-primary-blue/80 px-6 py-2.5 text-base font-medium text-white transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary-blue/50 focus:ring-offset-2 focus:ring-offset-transparent"
                 aria-label="Contact Us"
               >
-                CONTACT US
+                BOOK A SLOT
               </Button>
             </motion.div>
 
